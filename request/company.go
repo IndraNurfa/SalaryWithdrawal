@@ -14,7 +14,6 @@ type (
 	}
 )
 
-// TODO: tuliskan validasi untuk CompanyRequest dengan rule semua field required
 func (req CompanyRequest) Validate() error {
 	return validation.ValidateStruct(
 		&req,

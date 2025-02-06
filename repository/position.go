@@ -44,9 +44,6 @@ func (p *positionRepository) UpdateByID(ctx context.Context, id int, position *m
 
 func (p *positionRepository) Delete(ctx context.Context, id int) error {
 
-	// TODO: Buat fungsi untuk mengapus posisi
-	// panic("impelement me")
-
 	_, err := p.FindByID(ctx, id)
 
 	if err != nil {
@@ -63,8 +60,6 @@ func (p *positionRepository) Delete(ctx context.Context, id int) error {
 }
 
 func (p *positionRepository) Fetch(ctx context.Context, limit, offset int) ([]*model.Position, error) {
-	// TODO: Buat fungsi untuk mendapatkan data position berdasarkan parameter
-	// panic("impelement me")
 
 	var data []*model.Position
 

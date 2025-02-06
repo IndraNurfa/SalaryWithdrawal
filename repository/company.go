@@ -43,8 +43,6 @@ func (c *companyRepository) CreateOrUpdate(ctx context.Context, company *model.C
 		return nil, err
 	}
 
-	// TODO: tuliskan baris code untuk update data company
-
 	if err := c.Cfg.Database().WithContext(ctx).Model(&companyModel).Updates(&company).Error; err != nil {
 		return nil, err
 	}
@@ -55,18 +53,18 @@ func (c *companyRepository) CreateOrUpdate(ctx context.Context, company *model.C
 func (c *companyRepository) DebitBalance(ctx context.Context, amount int, note string) error {
 	company, err := c.Get(ctx)
 	if err != nil {
-		log.Println("data not found:")
+		log.Println("Company not found:", err)
 		return errors.New("company data not found")
 	}
 
-	// TODO: tuliskan baris code untuk mengurangi balance
+	if company == nil { // Prevent nil pointer dereference
+		return errors.New("company data is nil")
+	}
 
 	company.Balance -= amount
 
 	if err := c.Cfg.Database().WithContext(ctx).Model(&company).Updates(&company).Find(company).Error; err != nil {
-		log.Println("cant update company")
 		return err
-
 	}
 
 	if err := c.Cfg.Database().WithContext(ctx).Create(&model.Transaction{
@@ -86,13 +84,10 @@ func (c *companyRepository) AddBalance(ctx context.Context, balance int) (*model
 		return nil, errors.New("company data not found")
 	}
 
-	// TODO: tuliskan baris code untuk topup balance
-
 	company.Balance += balance
 
 	if err := c.Cfg.Database().WithContext(ctx).Model(&company).Updates(&company).Find(company).Error; err != nil {
 		return nil, err
-
 	}
 
 	if err := c.Cfg.Database().WithContext(ctx).Create(&model.Transaction{

@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"log"
 	"self-payrol/model"
 	"self-payrol/request"
 
@@ -22,20 +23,35 @@ func NewUserUsecase(user model.UserRepository, post model.PositionRepository, co
 func (p *userUsecase) WithdrawSalary(ctx context.Context, req *request.WithdrawRequest) error {
 	user, err := p.userRepository.FindByID(ctx, req.ID)
 	if err != nil {
-		// log.Println("Error getting user")
+		log.Println("Error getting user:", err)
 		return err
 	}
 
+	if user == nil { // Ensure user is not nil
+		log.Println("User not found")
+		return errors.New("user not found")
+	}
+
 	if user.SecretID != req.SecretID {
-		// log.Println("secret ID is not valid")
+		log.Println("secret ID is not valid")
 		return errors.New("secret id not valid")
 	}
 
 	notes := user.Name + " withdraw salary "
 
-	err = p.companyRepo.DebitBalance(ctx, user.Position.Salary, notes)
+	pos, err := p.positionRepo.FindByID(ctx, user.PositionID)
 	if err != nil {
-		// log.Println("Not debitting balance")
+		log.Println("Error getting posistion:", err)
+		return err
+	}
+
+	if pos == nil {
+		return errors.New("user position is not set")
+	}
+
+	err = p.companyRepo.DebitBalance(ctx, pos.Salary, notes)
+	if err != nil {
+		log.Println("Not debitting balance")
 		return err
 	}
 
